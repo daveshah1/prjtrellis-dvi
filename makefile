@@ -1,6 +1,6 @@
 PROJECT=dvi
 BOARD=ulx3s
-FPGA_SIZE=45
+FPGA_SIZE=12
 FPGA_CHIP=lfe5u-$(FPGA_SIZE)f
 VHDL2VL=/mt/scratch/tmp/openfpga/vhd2vl/src/vhd2vl
 YOSYS=/mt/scratch/tmp/openfpga/yosys/yosys
@@ -21,8 +21,10 @@ DIAMONDC := $(shell find ${DIAMOND_BIN}/ -name diamondc)
 DDTCMD := $(shell find ${DIAMOND_BIN}/ -name ddtcmd)
 FPGA_CHIP_UPPERCASE := $(shell echo $(FPGA_CHIP) | tr '[:lower:]' '[:upper:]')
 
+# design files
+TOP_MODULE=top_dvitest
+VERILOG_FILES=$(TOP_MODULE).v DVI_test.v TMDS_encoder.v OBUFDS.v clock.v
 # list of files for conversion to verilog
-VERILOG_FILES=blinky.v DVI_test.v TMDS_encoder.v OBUFDS.v clock.v
 VHDL_TO_VERILOG_FILES=vhdl_blink.v
 
 ifeq ($(FPGA_SIZE), 12)
@@ -52,6 +54,11 @@ all: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).vme
 
 #*.v: *.vhdl
 #	$(VHDL2VL) $< $@
+
+$(PROJECT).ys: makefile
+	./ysgen.sh $(VERILOG_FILES) $(VHDL_TO_VERILOG_FILES) > $@
+	echo "hierarchy -top ${TOP_MODULE}" >> $@
+	echo "synth_ecp5 -noccu2 -nomux -nodram -json ${PROJECT}.json" >> $@
 
 $(PROJECT).json: $(PROJECT).ys $(VERILOG_FILES) $(VHDL_TO_VERILOG_FILES)
 	$(YOSYS) $(PROJECT).ys 
@@ -116,6 +123,7 @@ program_ft232r: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).svf $(BOARD)_$(FPGA_SIZE)f.ocd
 	$(OPENOCD) --file=ft232r.ocd --file=$(BOARD)_$(FPGA_SIZE)f.ocd
 
 JUNK = *~
+JUNK += $(PROJECT).ys
 JUNK += $(PROJECT).json
 JUNK += $(VHDL_TO_VERILOG_FILES)
 JUNK += $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).config

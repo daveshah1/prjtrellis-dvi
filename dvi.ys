@@ -1,8 +1,0 @@
-read_verilog blinky.v
-read_verilog DVI_test.v
-read_verilog TMDS_encoder.v
-read_verilog OBUFDS.v
-read_verilog clock.v
-hierarchy -top blinky
-read_verilog vhdl_blink.v
-synth_ecp5 -noccu2 -nomux -nodram -json dvi.json

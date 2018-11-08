@@ -1,4 +1,4 @@
-module blinky
+module top_dvitest
 (
   input clk_pin,
   input btn_pin,
