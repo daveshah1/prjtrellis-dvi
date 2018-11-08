@@ -1,7 +1,9 @@
 # Project Trellis DVI
 
-Simple verilog DVI video example.
-It works with latest prjtrellis and specific branch of yosys.
+Simple verilog DVI video example that will display color test
+picture from [fpga4fun](https://www.fpga4fun.com/HDMI.html).
+It works on ULX3S with latest prjtrellis and specific branch of yosys.
+
 
 in yosys, get the branch
 
