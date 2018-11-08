@@ -93,7 +93,6 @@ module blinky
     
     wire clk_25MHz, clk_250MHz;
     // currently it doesn't compile
-    /*
     clock
     clock_instance
     (
@@ -101,7 +100,6 @@ module blinky
       .clk_25MHz(clk_25MHz),
       .clk_250MHz(clk_250MHz)
     );
-    */
 
     DVI_test
     DVI_test_instance
