@@ -66,33 +66,21 @@ module top_dvitest
     // Tie GPIO0, keep board from rebooting
     assign gpio0 = 1'b1;
 
-    localparam ctr_width = 28;
-    localparam ctr_max = 2**ctr_width - 1;
-
-    reg [ctr_width-1:0] R_blinky = 0;
-    always @ (posedge clk)
-    begin
-      R_blinky <= R_blinky+1;
-    end
-
-    wire extrablink;
-    // VHDL module "blink"
+    localparam counter_width = 28;
+    wire [7:0] countblink;
     vhdl_blink
     #(
-      .bits(22)
+      .bits(counter_width)
     )
     vhdl_blink_instance
     (
       .clk(clk),
-      .led(extrablink)
+      .led(countblink)
     );
-    
     assign led[0] = btn;
-    assign led[1] = extrablink;
-    assign led[7:2] = R_blinky[ctr_width-1:ctr_width-7];
-    
+    assign led[7:1] = countblink[7:1];
+
     wire clk_25MHz, clk_250MHz;
-    // currently it doesn't compile
     clock
     clock_instance
     (

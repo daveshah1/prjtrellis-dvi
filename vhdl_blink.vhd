@@ -13,7 +13,7 @@ entity vhdl_blink is
   port
   (
     clk: in std_logic;  -- main clock input from 25MHz clock source
-    led: out std_logic
+    led: out std_logic_vector(7 downto 0)
   );
 end;
 
@@ -26,5 +26,5 @@ begin
         R_blink <= R_blink+1;
       end if;
     end process;
-    led <= R_blink(R_blink'high);
+    led <= R_blink(R_blink'high downto R_blink'high-7);
 end Behavioral;
