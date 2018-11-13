@@ -1,6 +1,6 @@
 PROJECT=dvi
 BOARD=ulx3s
-FPGA_SIZE=12
+FPGA_SIZE=85
 FPGA_CHIP=lfe5u-$(FPGA_SIZE)f
 VHDL2VL=/mt/scratch/tmp/openfpga/vhd2vl/src/vhd2vl
 YOSYS=/mt/scratch/tmp/openfpga/yosys/yosys
@@ -22,6 +22,7 @@ DDTCMD := $(shell find ${DIAMOND_BIN}/ -name ddtcmd)
 FPGA_CHIP_UPPERCASE := $(shell echo $(FPGA_CHIP) | tr '[:lower:]' '[:upper:]')
 
 # design files
+CONSTRAINTS=ulx3s_v20_segpdi.lpf
 TOP_MODULE=top_dvitest
 VERILOG_FILES=$(TOP_MODULE).v DVI_test.v TMDS_encoder.v OBUFDS.v clock.v
 # list of files for conversion to verilog
@@ -64,10 +65,10 @@ $(PROJECT).json: $(PROJECT).ys $(VERILOG_FILES) $(VHDL_TO_VERILOG_FILES)
 	$(YOSYS) $(PROJECT).ys 
 
 $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).config: $(PROJECT).json $(BASECFG)
-	$(NEXTPNR-ECP5) --$(FPGA_K)k --json $(PROJECT).json --basecfg $(BASECFG) --textcfg $@
+	$(NEXTPNR-ECP5) --$(FPGA_K)k --json $(PROJECT).json --lpf $(CONSTRAINTS) --basecfg $(BASECFG) --textcfg $@
 
 $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).config
-	LD_LIBRARY_PATH=$(LIBTRELLIS) $(ECPPACK) --db $(TRELLISDB) $< $@
+	LD_LIBRARY_PATH=$(LIBTRELLIS) $(ECPPACK) --db $(TRELLISDB) --input $< --bit $@
 
 # dummy file needed for xsltproc
 DTD_FILE=IspXCF.dtd
@@ -91,8 +92,11 @@ $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).vme: $(BOARD)_$(FPGA_SIZE)f.xcf $(BOARD)_$(FPG
 #	LANG=C ${DDTCMD} -oft -svfsingle -revd -maxdata 8 -if $(BOARD)_$(FPGA_SIZE)f.xcf -of $@
 
 # generate SVF file by prjtrellis python script
-$(BOARD)_$(FPGA_SIZE)f_$(PROJECT).svf: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit
-	$(BIT2SVF) $< $@
+#$(BOARD)_$(FPGA_SIZE)f_$(PROJECT).svf: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit
+#	$(BIT2SVF) $< $@
+
+$(BOARD)_$(FPGA_SIZE)f_$(PROJECT).svf: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).config
+	LD_LIBRARY_PATH=$(LIBTRELLIS) $(ECPPACK) --db $(TRELLISDB) $< --freq 62.0 --svf-rowsize 8000 --svf $@
 
 # program SRAM  with ujrprog (temporary)
 program: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit
@@ -111,11 +115,11 @@ $(BOARD)_$(FPGA_SIZE)f.ocd: makefile ecp5-ocd.sh
 	./ecp5-ocd.sh $(CHIP_ID) $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).svf > $@
 
 # program SRAM with OPENOCD using onboard ft231y (temporary)
-program_ft231x: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).svf $(BOARD)_$(FPGA_SIZE)f.ocd
+program_ocd: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).svf $(BOARD)_$(FPGA_SIZE)f.ocd
 	$(OPENOCD) --file=ft231x.ocd --file=$(BOARD)_$(FPGA_SIZE)f.ocd
 
 # program SRAM with OPENOCD with jtag pass-thru to another board
-program_ft231x2: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).svf $(BOARD)_$(FPGA_SIZE)f.ocd
+program_ocd_thru: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).svf $(BOARD)_$(FPGA_SIZE)f.ocd
 	$(OPENOCD) --file=ft231x2.ocd --file=$(BOARD)_$(FPGA_SIZE)f.ocd
 
 # program SRAM with OPENOCD with external ft232r module

@@ -11,7 +11,6 @@ module top_dvitest
     wire [7:0] led;
     wire btn;
     wire gpio0;
-
     wire [3:0] gpdi_dp, gpdi_dn;
 
     (* LOC="G2" *) (* IO_TYPE="LVCMOS33" *)
