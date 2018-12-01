@@ -23,9 +23,11 @@ FPGA_CHIP_UPPERCASE := $(shell echo $(FPGA_CHIP) | tr '[:lower:]' '[:upper:]')
 
 # design files
 CONSTRAINTS=ulx3s_v20_segpdi.lpf
-TOP_MODULE=top_dvitest
+TOP_MODULE=top_dvitest_lpf
 VERILOG_FILES=$(TOP_MODULE).v DVI_test.v TMDS_encoder.v OBUFDS.v clock.v
-# list of files for conversion to verilog
+# implicit list of *.vhd VHDL files to be converted to verilog *.v
+# files here are list as *.v but user should
+# edit original source which has *.vhd extension (vhdl_blink.vhd)
 VHDL_TO_VERILOG_FILES=vhdl_blink.v
 
 ifeq ($(FPGA_SIZE), 12)
@@ -47,7 +49,8 @@ ifeq ($(FPGA_CHIP), lfe5u-85f)
   CHIP_ID=0x41113043
 endif
 
-all: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).vme $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).svf
+#all: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).vme $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).svf
+all: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).svf
 
 # VHDL to VERILOG conversion
 %.v: %.vhd
