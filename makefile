@@ -10,6 +10,8 @@ YOSYS=/mt/scratch/tmp/openfpga/yosys/yosys
 NEXTPNR-ECP5=/mt/scratch/tmp/openfpga/nextpnr/nextpnr-ecp5
 # https://github.com/SymbiFlow/prjtrellis
 TRELLIS=/mt/scratch/tmp/openfpga/prjtrellis
+# helper scripts in this directory
+SCRIPTS=scripts
 ECPPACK=$(TRELLIS)/libtrellis/ecppack
 TRELLISDB=$(TRELLIS)/database
 LIBTRELLIS=$(TRELLIS)/libtrellis
@@ -64,7 +66,7 @@ all: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).svf
 #	$(VHDL2VL) $< $@
 
 $(PROJECT).ys: makefile
-	./ysgen.sh $(VERILOG_FILES) $(VHDL_TO_VERILOG_FILES) > $@
+	$(SCRIPTS)/ysgen.sh $(VERILOG_FILES) $(VHDL_TO_VERILOG_FILES) > $@
 	echo "hierarchy -top ${TOP_MODULE}" >> $@
 	echo "synth_ecp5 -noccu2 -nomux -nodram -json ${PROJECT}.json" >> $@
 
@@ -83,12 +85,12 @@ $(DTD_FILE):
 	touch $(DTD_FILE)
 
 # generate XCF programming file for DDTCMD
-$(BOARD)_$(FPGA_SIZE)f.xcf: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit $(BOARD)_sram.xml xcf.xsl $(DTD_FILE)
+$(BOARD)_$(FPGA_SIZE)f.xcf: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit $(SCRIPTS)/$(BOARD)_sram.xml $(SCRIPTS)/xcf.xsl $(DTD_FILE)
 	xsltproc \
 	  --stringparam FPGA_CHIP $(FPGA_CHIP_UPPERCASE) \
 	  --stringparam CHIP_ID $(CHIP_ID) \
 	  --stringparam BITSTREAM_FILE $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit \
-	  xcf.xsl $(BOARD)_sram.xml > $@
+	  $(SCRIPTS)/xcf.xsl $(SCRIPTS)/$(BOARD)_sram.xml > $@
 
 # run DDTCMD to generate VME file
 $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).vme: $(BOARD)_$(FPGA_SIZE)f.xcf $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit
@@ -118,20 +120,20 @@ program_flash: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit
 	$(TINYFPGASP) -w $<
 
 # generate chip-specific openocd programming file
-$(BOARD)_$(FPGA_SIZE)f.ocd: makefile ecp5-ocd.sh
-	./ecp5-ocd.sh $(CHIP_ID) $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).svf > $@
+$(BOARD)_$(FPGA_SIZE)f.ocd: makefile $(SCRIPTS)/ecp5-ocd.sh
+	$(SCRIPTS)/ecp5-ocd.sh $(CHIP_ID) $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).svf > $@
 
 # program SRAM with OPENOCD using onboard ft231y (temporary)
 program_ocd: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).svf $(BOARD)_$(FPGA_SIZE)f.ocd
-	$(OPENOCD) --file=ft231x.ocd --file=$(BOARD)_$(FPGA_SIZE)f.ocd
+	$(OPENOCD) --file=$(SCRIPTS)/ft231x.ocd --file=$(BOARD)_$(FPGA_SIZE)f.ocd
 
 # program SRAM with OPENOCD with jtag pass-thru to another board
 program_ocd_thru: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).svf $(BOARD)_$(FPGA_SIZE)f.ocd
-	$(OPENOCD) --file=ft231x2.ocd --file=$(BOARD)_$(FPGA_SIZE)f.ocd
+	$(OPENOCD) --file=$(SCRIPTS)/ft231x2.ocd --file=$(BOARD)_$(FPGA_SIZE)f.ocd
 
 # program SRAM with OPENOCD with external ft232r module
 program_ft232r: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).svf $(BOARD)_$(FPGA_SIZE)f.ocd
-	$(OPENOCD) --file=ft232r.ocd --file=$(BOARD)_$(FPGA_SIZE)f.ocd
+	$(OPENOCD) --file=$(SCRIPTS)/ft232r.ocd --file=$(BOARD)_$(FPGA_SIZE)f.ocd
 
 JUNK = *~
 JUNK += $(PROJECT).ys
