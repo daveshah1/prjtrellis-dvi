@@ -11,4 +11,5 @@ ft232r_tdi_num RI
 ft232r_tdo_num CTS
 ft232r_trst_num RTS
 ft232r_srst_num DTR
+ft232r_restore_serial 0x15
 adapter_khz 1000
