@@ -65,13 +65,19 @@ all: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).svf
 #*.v: *.vhdl
 #	$(VHDL2VL) $< $@
 
-$(PROJECT).ys: makefile
-	$(SCRIPTS)/ysgen.sh $(VERILOG_FILES) $(VHDL_TO_VERILOG_FILES) > $@
-	echo "hierarchy -top ${TOP_MODULE}" >> $@
-	echo "synth_ecp5 -noccu2 -nomux -nodram -json ${PROJECT}.json" >> $@
+#$(PROJECT).ys: makefile
+#	$(SCRIPTS)/ysgen.sh $(VERILOG_FILES) $(VHDL_TO_VERILOG_FILES) > $@
+#	echo "hierarchy -top ${TOP_MODULE}" >> $@
+#	echo "synth_ecp5 -noccu2 -nomux -nodram -json ${PROJECT}.json" >> $@
 
-$(PROJECT).json: $(PROJECT).ys $(VERILOG_FILES) $(VHDL_TO_VERILOG_FILES)
-	$(YOSYS) $(PROJECT).ys 
+#$(PROJECT).json: $(PROJECT).ys $(VERILOG_FILES) $(VHDL_TO_VERILOG_FILES)
+#	$(YOSYS) $(PROJECT).ys
+
+$(PROJECT).json: $(VERILOG_FILES) $(VHDL_TO_VERILOG_FILES)
+	$(YOSYS) \
+	-p "hierarchy -top ${TOP_MODULE}" \
+	-p "synth_ecp5 -noccu2 -nomux -nodram -json ${PROJECT}.json" \
+	$(VERILOG_FILES) $(VHDL_TO_VERILOG_FILES)
 
 $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).config: $(PROJECT).json $(BASECFG)
 	$(NEXTPNR-ECP5) --$(FPGA_K)k --json $(PROJECT).json --lpf $(CONSTRAINTS) --basecfg $(BASECFG) --textcfg $@
@@ -136,7 +142,7 @@ program_ft232r: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).svf $(BOARD)_$(FPGA_SIZE)f.ocd
 	$(OPENOCD) --file=$(SCRIPTS)/ft232r.ocd --file=$(BOARD)_$(FPGA_SIZE)f.ocd
 
 JUNK = *~
-JUNK += $(PROJECT).ys
+#JUNK += $(PROJECT).ys
 JUNK += $(PROJECT).json
 JUNK += $(VHDL_TO_VERILOG_FILES)
 JUNK += $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).config
