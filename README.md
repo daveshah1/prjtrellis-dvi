@@ -20,15 +20,19 @@ get prjtrellis (it should autmatically pull its latest database) and compile
     cmake -DCMAKE_INSTALL_PREFIX=/usr .
     make
 
-get yosys, get the ECP5 branch and compile
+get yosys, and compile
 
     git clone https://github.com/YosysHQ/yosys
     cd yosys
+    make config-gcc
+    make 
+
+That would normally do, but for some early development
+feathers then Dave's ECP5 branch may be needed
+
     git remote add dave https://github.com/daveshah1/yosys
     git pull dave
     git checkout ecp5_bb
-    make config-gcc
-    make 
 
 get fresh nextpnr
 
