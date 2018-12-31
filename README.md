@@ -5,6 +5,14 @@ from [fpga4fun](https://www.fpga4fun.com/HDMI.html) shows
 color test picture on DVI monitor.
 It works on ULX3S with latest prjtrellis and specific branch of yosys.
 
+A part of diamond closed-source tools (DDTCMD) is used here to create
+*.vme programming file for "FleaFPGA-JTAG" tool, but it can be skiped as
+generated *.bin file can be programmed and flashed with our "ujprog" tool
+and generated *.svf file can be programmed with latest "openocd" or uploaded
+remotely using onboard ESP32 WiFi.
+
+# Compiling the opensource tools
+
 get prjtrellis (it should autmatically pull its latest database) and compile
 
     git clone https://github.com/SymbiFlow/prjtrellis
