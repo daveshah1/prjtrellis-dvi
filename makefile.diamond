@@ -1,16 +1,18 @@
 # ******* project, board and chip name *******
 PROJECT ?= dvi
 BOARD ?= ulx3s
-FPGA_SIZE ?= 25
+FPGA_SIZE ?= 85
+FPGA_PACKAGE ?= 6bg381c
 
 # ******* design files *******
 CONSTRAINTS ?= ulx3s_v20_segpdi.lpf
 TOP_MODULE ?= top_dvitest_lpf
 TOP_MODULE_FILE ?= $(TOP_MODULE).v
-VERILOG_FILES ?= $(TOP_MODULE_FILE) DVI_test.v TMDS_encoder.v OBUFDS.v clk_25_125_250_25_83.v
-VHDL_TO_VERILOG_FILES ?= vhdl_blink.v
+VERILOG_FILES ?= $(TOP_MODULE_FILE) DVI_test.v TMDS_encoder.v OBUFDS.v
+VHDL_FILES ?= vhdl_blink.vhd clk_25_125_250_25_83.vhd
 
 # synthesis options
 YOSYS_OPTIONS = -noccu2
 
-include scripts/ulx3s_trellis.mk
+# include scripts/ulx3s_trellis.mk
+include scripts/ulx3s_diamond.mk

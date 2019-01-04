@@ -18,14 +18,14 @@ module top_dvitest_lpf
     )
     vhdl_blink_instance
     (
-      .clk(clk),
+      .clk(clk_25MHz),
       .led(countblink)
     );
     assign led[0] = btn[1];
     assign led[7:1] = countblink[7:1];
 
     wire clk_25MHz, clk_250MHz;
-    clock
+    clk_25_125_250_25_83
     clock_instance
     (
       .clkin_25MHz(clk_25mhz),

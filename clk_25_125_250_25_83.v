@@ -1,4 +1,4 @@
-module clock
+module clk_25_125_250_25_83
 (
   input clkin_25MHz,
   output clk_125MHz,
