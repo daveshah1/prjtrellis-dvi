@@ -116,6 +116,7 @@ $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).config: $(PROJECT).json $(BASECFG)
 $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).ldf: $(SCRIPTS)/project.ldf $(SCRIPTS)/ldf.xsl $(DTD_FILE)
 	xsltproc \
 	  --stringparam FPGA_DEVICE $(FPGA_CHIP_UPPERCASE)-$(FPGA_PACKAGE_UPPERCASE) \
+	  --stringparam CONSTRAINTS_FILE $(CONSTRAINTS) \
 	  --stringparam TOP_MODULE $(TOP_MODULE) \
 	  --stringparam TOP_MODULE_FILE $(TOP_MODULE_FILE) \
 	  --stringparam VHDL_FILES "$(VHDL_FILES)" \

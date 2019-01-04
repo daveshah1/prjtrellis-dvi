@@ -3,6 +3,7 @@
 <xsl:output method="xml" version="1.0" indent="yes" omit-xml-declaration="no"/>
 <xsl:strip-space elements="*"/>
 <xsl:param name="FPGA_DEVICE"/>
+<xsl:param name="CONSTRAINTS_FILE"/>
 <xsl:param name="TOP_MODULE"/>
 <xsl:param name="TOP_MODULE_FILE"/>
 <xsl:param name="VERILOG_FILES"/>
@@ -28,9 +29,9 @@
   </xsl:attribute>
 </xsl:template>
 
-<xsl:template match="BaliProject/Implementation/Source[@name='top.v']/Options/@top_module">
-  <xsl:attribute name="top_module">
-    <xsl:value-of select="$TOP_MODULE"/>
+<xsl:template match="BaliProject/Implementation/Source[@type_short='LPF']/@name">
+  <xsl:attribute name="name">
+    <xsl:value-of select="$CONSTRAINTS_FILE"/>
   </xsl:attribute>
 </xsl:template>
 
