@@ -4,6 +4,10 @@ BOARD ?= board
 FPGA_SIZE ?= 12
 FPGA_CHIP ?= lfe5u-$(FPGA_SIZE)f
 FPGA_PACKAGE ?= 6bg381c
+# config flash: 1:SPI (standard), 4:QSPI (quad)
+FLASH_SPI ?= 1
+# chip: is25lp032d is25lp128f s25fl164k
+FLASH_CHIP ?= is25lp032d
 
 # ******* design files *******
 CONSTRAINTS ?= board_constraints.lpf
@@ -24,15 +28,19 @@ TRELLIS ?= /mt/scratch/tmp/openfpga/prjtrellis
 
 ifeq ($(FPGA_CHIP), lfe5u-12f)
   CHIP_ID=0x21111043
+  MASK_FILE=LFE5U-45F.msk
 endif
 ifeq ($(FPGA_CHIP), lfe5u-25f)
   CHIP_ID=0x41111043
+  MASK_FILE=LFE5U-45F.msk
 endif
 ifeq ($(FPGA_CHIP), lfe5u-45f)
   CHIP_ID=0x41112043
+  MASK_FILE=LFE5U-45F.msk
 endif
 ifeq ($(FPGA_CHIP), lfe5u-85f)
   CHIP_ID=0x41113043
+  MASK_FILE=LFE5U-85F.msk
 endif
 
 ifeq ($(FPGA_SIZE), 12)
@@ -60,6 +68,7 @@ ifneq ($(wildcard $(DIAMOND_BASE)),)
   DIAMOND_BIN :=  $(shell find ${DIAMOND_BASE}/ -maxdepth 2 -name bin | sort -rn | head -1)
   DIAMONDC := $(shell find ${DIAMOND_BIN}/ -name diamondc)
   DDTCMD := $(shell find ${DIAMOND_BIN}/ -name ddtcmd)
+  MASK_PATH := $(shell find ${DIAMOND_BASE}/ -maxdepth 5 -name xpga -type d)/ecp5
 endif
 
 #PROJ_FILE := $(shell ls *.ldf | head -1)
@@ -113,7 +122,7 @@ $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).config: $(PROJECT).json $(BASECFG)
 #	LANG=C LD_LIBRARY_PATH=$(LIBTRELLIS) $(ECPPACK) $(IDCODE_CHIPID) --db $(TRELLISDB) --input $< --bit $@
 
 # generate LDF project file for diamond
-$(BOARD)_$(FPGA_SIZE)f_$(PROJECT).ldf: $(SCRIPTS)/project.ldf $(SCRIPTS)/ldf.xsl $(DTD_FILE)
+$(BOARD)_$(FPGA_SIZE)f_$(PROJECT).ldf: $(SCRIPTS)/project.ldf $(SCRIPTS)/ldf.xsl
 	xsltproc \
 	  --stringparam FPGA_DEVICE $(FPGA_CHIP_UPPERCASE)-$(FPGA_PACKAGE_UPPERCASE) \
 	  --stringparam CONSTRAINTS_FILE $(CONSTRAINTS) \
@@ -129,27 +138,39 @@ project/project_project.bit: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).ldf
 $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit: project/project_project.bit
 	ln -sf project/project_project.bit $@
 
-
-# dummy file needed for xsltproc
-DTD_FILE=IspXCF.dtd
-$(DTD_FILE):
-	touch $(DTD_FILE)
-
-# generate XCF programming file for DDTCMD
-$(BOARD)_$(FPGA_SIZE)f.xcf: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit $(SCRIPTS)/$(BOARD)_sram.xcf $(SCRIPTS)/xcf.xsl $(DTD_FILE)
+# generate sram programming XCF file for DDTCMD
+$(BOARD)_$(FPGA_SIZE)f.xcf: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit $(SCRIPTS)/$(BOARD)_sram.xcf $(SCRIPTS)/xcf.xsl
 	xsltproc \
 	  --stringparam FPGA_CHIP $(FPGA_CHIP_UPPERCASE) \
 	  --stringparam CHIP_ID $(CHIP_ID) \
 	  --stringparam BITSTREAM_FILE $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit \
 	  $(SCRIPTS)/xcf.xsl $(SCRIPTS)/$(BOARD)_sram.xcf > $@
 
-# run DDTCMD to generate VME file
+# run DDTCMD to generate sram VME file
 $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).vme: $(BOARD)_$(FPGA_SIZE)f.xcf $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit
 	LANG=C ${DDTCMD} -oft -fullvme -if $(BOARD)_$(FPGA_SIZE)f.xcf -nocompress -noheader -of $@
 
 # run DDTCMD to generate SVF file
 $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).svf: $(BOARD)_$(FPGA_SIZE)f.xcf $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit
 	LANG=C ${DDTCMD} -oft -svfsingle -revd -maxdata 8 -if $(BOARD)_$(FPGA_SIZE)f.xcf -of $@
+
+# run DDTCMD to generate flash MCS file
+$(BOARD)_$(FPGA_SIZE)f_$(PROJECT)_flash.mcs: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit
+	LANG=C ${DDTCMD} -dev $(FPGA_CHIP_UPPERCASE) \
+	-if $< -oft -int -quad $(FPGA_SPI) -of $@
+
+# generate flash programming XCF file for DDTCMD
+$(BOARD)_$(FPGA_SIZE)f_flash_$(FLASH_CHIP).xcf: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit $(SCRIPTS)/$(BOARD)_flash_$(FLASH_CHIP).xcf $(SCRIPTS)/xcf.xsl
+	xsltproc \
+	  --stringparam FPGA_CHIP $(FPGA_CHIP_UPPERCASE) \
+	  --stringparam CHIP_ID $(CHIP_ID) \
+	  --stringparam MASK_FILE $(MASK_PATH)/$(MASK_FILE) \
+	  --stringparam BITSTREAM_FILE $(BOARD)_$(FPGA_SIZE)f_$(PROJECT)_flash.mcs \
+	  $(SCRIPTS)/xcf.xsl $(SCRIPTS)/$(BOARD)_flash_$(FLASH_CHIP).xcf > $@
+
+# run DDTCMD to generate flash VME file
+$(BOARD)_$(FPGA_SIZE)f_$(PROJECT)_flash_$(FLASH_CHIP).vme: ulx3s_25f_flash_$(FLASH_CHIP).xcf $(BOARD)_$(FPGA_SIZE)f_$(PROJECT)_flash.mcs
+	LANG=C ${DDTCMD} -oft -fullvme -if $(BOARD)_$(FPGA_SIZE)f_flash_$(FLASH_CHIP).xcf -nocompress -noheader -of $@
 
 # generate SVF file by prjtrellis python script
 #$(BOARD)_$(FPGA_SIZE)f_$(PROJECT).svf: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit
@@ -162,13 +183,17 @@ $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).svf: $(BOARD)_$(FPGA_SIZE)f.xcf $(BOARD)_$(FPG
 program: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit
 	$(UJPROG) $<
 
-# program SRAM  with FleaFPGA-JTAG (temporary)
+# program SRAM with FleaFPGA-JTAG (temporary)
 program_flea: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).vme
 	$(FLEAFPGA_JTAG) $<
 
-# program FLASH over US1 port with ujprog bootloader (permanently)
+# program FLASH over US1 port with ujprog (permanently)
 flash: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit
 	$(UJPROG) -j flash $<
+
+# program FLASH uver US1 with FleaFPGA-JTAG (permanent)
+flash_flea: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT)_flash_$(FLASH_CHIP).vme
+	$(FLEAFPGA_JTAG) $<
 
 # program FLASH over US2 port with tinyfpgasp bootloader (permanently)
 flash_tiny: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit
@@ -200,8 +225,10 @@ JUNK += $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit
 JUNK += $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).vme
 JUNK += $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).svf
 JUNK += $(BOARD)_$(FPGA_SIZE)f.xcf
+JUNK += $(BOARD)_$(FPGA_SIZE)f_$(PROJECT)_flash.mcs
+JUNK += $(BOARD)_$(FPGA_SIZE)f_flash_$(FLASH_CHIP).xcf
+JUNK += $(BOARD)_$(FPGA_SIZE)f_$(PROJECT)_flash_$(FLASH_CHIP).vme
 JUNK += $(BOARD)_$(FPGA_SIZE)f.ocd
-JUNK += $(DTD_FILE)
 # diamond junk
 JUNK += ${IMPL_DIR} .recovery ._Real_._Math_.vhd *.sty reportview.xml
 JUNK += dummy_sym.sort project_tcl.html promote.xml

@@ -106,18 +106,13 @@ $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).config: $(PROJECT).json $(BASECFG)
 $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).config
 	LANG=C LD_LIBRARY_PATH=$(LIBTRELLIS) $(ECPPACK) $(IDCODE_CHIPID) --db $(TRELLISDB) --input $< --bit $@
 
-# dummy file needed for xsltproc
-DTD_FILE=IspXCF.dtd
-$(DTD_FILE):
-	touch $(DTD_FILE)
-
 # generate XCF programming file for DDTCMD
-$(BOARD)_$(FPGA_SIZE)f.xcf: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit $(SCRIPTS)/$(BOARD)_sram.xml $(SCRIPTS)/xcf.xsl $(DTD_FILE)
+$(BOARD)_$(FPGA_SIZE)f.xcf: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit $(SCRIPTS)/$(BOARD)_sram.xcf $(SCRIPTS)/xcf.xsl $(DTD_FILE)
 	xsltproc \
 	  --stringparam FPGA_CHIP $(FPGA_CHIP_UPPERCASE) \
 	  --stringparam CHIP_ID $(CHIP_ID) \
 	  --stringparam BITSTREAM_FILE $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit \
-	  $(SCRIPTS)/xcf.xsl $(SCRIPTS)/$(BOARD)_sram.xml > $@
+	  $(SCRIPTS)/xcf.xsl $(SCRIPTS)/$(BOARD)_sram.xcf > $@
 
 # run DDTCMD to generate VME file
 $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).vme: $(BOARD)_$(FPGA_SIZE)f.xcf $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit
@@ -176,7 +171,6 @@ JUNK += $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).vme
 JUNK += $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).svf
 JUNK += $(BOARD)_$(FPGA_SIZE)f.xcf
 JUNK += $(BOARD)_$(FPGA_SIZE)f.ocd
-JUNK += $(DTD_FILE)
 
 clean:
 	rm -f $(JUNK)
