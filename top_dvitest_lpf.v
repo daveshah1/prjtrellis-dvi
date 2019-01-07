@@ -6,9 +6,9 @@ module top_dvitest_lpf
   output [3:0] gpdi_dp, gpdi_dn,
   output wifi_gpio0
 );
-
-    // Tie GPIO0, keep board from rebooting
-    assign wifi_gpio0 = 1'b1;
+    // wifi_gpio0=1 keeps board from rebooting
+    // hold btn0 to let ESP32 take control over the board
+    assign wifi_gpio0 = btn[0];
 
     localparam counter_width = 28;
     wire [7:0] countblink;
