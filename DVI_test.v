@@ -24,12 +24,18 @@ always @(posedge pixclk) hSync <= (CounterX>=656) && (CounterX<752);
 always @(posedge pixclk) vSync <= (CounterY>=490) && (CounterY<492);
 
 ////////////////
-wire [7:0] W = {8{CounterX[7:0]==CounterY[7:0]}};
-wire [7:0] A = {8{CounterX[7:5]==3'h2 && CounterY[7:5]==3'h2}};
+parameter anim_bits = 26; // less -> faster
+reg [anim_bits-1:0] ANIM;
+always @(posedge pixclk) ANIM <= ANIM + 1;
+wire [9:0] CX, CY;
+assign CX = CounterX + ANIM[anim_bits-1:anim_bits-9];
+assign CY = CounterY + ANIM[anim_bits-1:anim_bits-8];
+wire [7:0] W = {8{CX[7:0]==CY[7:0]}};
+wire [7:0] A = {8{CX[7:5]==3'h2 && CY[7:5]==3'h2}};
 reg [7:0] red, green, blue;
-always @(posedge pixclk) red <= ({CounterX[5:0] & {6{CounterY[4:3]==~CounterX[4:3]}}, 2'b00} | W) & ~A;
-always @(posedge pixclk) green <= (CounterX[7:0] & {8{CounterY[6]}} | W) & ~A;
-always @(posedge pixclk) blue <= CounterY[7:0] | W | A;
+always @(posedge pixclk) red <= ({CX[5:0] & {6{CY[4:3]==~CX[4:3]}}, 2'b00} | W) & ~A;
+always @(posedge pixclk) green <= (CX[7:0] & {8{CY[6]}} | W) & ~A;
+always @(posedge pixclk) blue <= CY[7:0] | W | A;
 
 ////////////////////////////////////////////////////////////////////////
 wire [9:0] TMDS_red, TMDS_green, TMDS_blue;
