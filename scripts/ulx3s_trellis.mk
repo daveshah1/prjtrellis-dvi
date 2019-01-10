@@ -11,7 +11,7 @@ VERILOG_FILES ?= $(TOP_MODULE).v
 # implicit list of *.vhd VHDL files to be converted to verilog *.v
 # files here are list as *.v but user should
 # edit original source which has *.vhd extension (vhdl_blink.vhd)
-VHDL_TO_VERILOG_FILES ?=
+VHDL_FILES ?=
 
 # ******* tools installation paths *******
 # https://github.com/ldoolitt/vhd2vl
@@ -80,6 +80,9 @@ FPGA_CHIP_UPPERCASE := $(shell echo $(FPGA_CHIP) | tr '[:lower:]' '[:upper:]')
 all: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).svf
 
 # VHDL to VERILOG conversion
+# convert all *.vhd filenames to .v extension
+VHDL_TO_VERILOG_FILES = $(VHDL_FILES:.vhd=.v)
+# implicit conversion rule
 %.v: %.vhd
 	$(VHDL2VL) $< $@
 
