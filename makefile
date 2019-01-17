@@ -1,7 +1,7 @@
 # ******* project, board and chip name *******
 PROJECT = dvi
 BOARD = ulx3s
-FPGA_SIZE = 85
+FPGA_SIZE = 12
 
 # ******* design files *******
 CONSTRAINTS = ulx3s_v20_segpdi.lpf

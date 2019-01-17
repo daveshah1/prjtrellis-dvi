@@ -11,6 +11,7 @@ FLASH_CHIP ?= is25lp032d
 
 # ******* design files *******
 CONSTRAINTS ?= board_constraints.lpf
+STRATEGY ?= $(SCRIPTS)/ulx3s.sty
 TOP_MODULE ?= top
 TOP_MODULE_FILE ?= $(TOP_MODULE).v
 VERILOG_FILES ?= $(TOP_MODULE_FILE)
@@ -126,6 +127,7 @@ $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).ldf: $(SCRIPTS)/project.ldf $(SCRIPTS)/ldf.xsl
 	xsltproc \
 	  --stringparam FPGA_DEVICE $(FPGA_CHIP_UPPERCASE)-$(FPGA_PACKAGE_UPPERCASE) \
 	  --stringparam CONSTRAINTS_FILE $(CONSTRAINTS) \
+	  --stringparam STRATEGY_FILE $(STRATEGY) \
 	  --stringparam TOP_MODULE $(TOP_MODULE) \
 	  --stringparam TOP_MODULE_FILE $(TOP_MODULE_FILE) \
 	  --stringparam VHDL_FILES "$(VHDL_FILES)" \
