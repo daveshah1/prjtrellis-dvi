@@ -1,9 +1,20 @@
 # Project Trellis DVI
 
-Simple verilog video example 
+Simple VGA video example
 from [fpga4fun](https://www.fpga4fun.com/HDMI.html) shows
 color test picture on DVI monitor.
+VGA video signal (8-bit RGB, hsync, vsync, blank)
+is converted to 10-bit digital video, serialized with DDR/SDR option,
+and sent to single-ended otputs as fake differential signal.
 It works on ULX3S with latest prjtrellis and specific branch of yosys.
+
+For prjtrellis, compile it with:
+
+    make 
+
+Same source can also be compiled with Lattice Diamond:
+
+    make -f makefile.diamond
 
 A part of diamond closed-source tools (DDTCMD) is used here to create
 *.vme programming file for "FleaFPGA-JTAG" tool, but it can be skiped as
