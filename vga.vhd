@@ -19,7 +19,7 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
 use ieee.std_logic_arith.all;
-use ieee.math_real.all; -- to calculate log2 bit size
+-- use ieee.math_real.all; -- to calculate log2 bit size
 
 entity vga is
   generic(
