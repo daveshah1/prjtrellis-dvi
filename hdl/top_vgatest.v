@@ -94,10 +94,10 @@ module top_vgatest
     fake_differential_instance
     (
       .clk_shift(clk_shift),
-      .in_tmds_clock(tmds[3]),
-      .in_tmds_red(tmds[2]),
-      .in_tmds_green(tmds[1]),
-      .in_tmds_blue(tmds[0]),
+      .in_clock(tmds[3]),
+      .in_red(tmds[2]),
+      .in_green(tmds[1]),
+      .in_blue(tmds[0]),
       .out_p(gpdi_dp),
       .out_n(gpdi_dn)
     );

@@ -3,18 +3,18 @@
 module fake_differential
 (
   input clk_shift, // used only in DDR mode
-  // [1:0]:DDR [0]:SDR
-  input [1:0] in_tmds_clock, in_tmds_red, in_tmds_green, in_tmds_blue,
+  // [1:0]:DDR [0]:SDR TMDS
+  input [1:0] in_clock, in_red, in_green, in_blue,
   // [3]:clock [2]:red [1]:green [0]:blue 
   output [3:0] out_p, out_n
 );
     parameter C_ddr = 1'b0; // 0:SDR 1:DDR
 
     wire [1:0] tmds[3:0];
-    assign tmds[3] = in_tmds_clock;
-    assign tmds[2] = in_tmds_red;
-    assign tmds[1] = in_tmds_green;
-    assign tmds[0] = in_tmds_blue;
+    assign tmds[3] = in_clock;
+    assign tmds[2] = in_red;
+    assign tmds[1] = in_green;
+    assign tmds[0] = in_blue;
 
     // register stage to improve timing of the fake differential
     reg [1:0] R_tmds_p[3:0], R_tmds_n[3:0];
