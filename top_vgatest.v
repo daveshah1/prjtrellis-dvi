@@ -6,7 +6,7 @@ module top_vgatest
   output [3:0] gpdi_dp, gpdi_dn,
   output wifi_gpio0
 );
-    parameter C_ddr = 1'b1; // 0:SDR 1:DDR 
+    parameter C_ddr = 1'b0; // 0:SDR 1:DDR
 
     // wifi_gpio0=1 keeps board from rebooting
     // hold btn0 to let ESP32 take control over the board
@@ -86,7 +86,18 @@ module top_vgatest
       .out_blue(tmds[0])
     );
 
-    // output SDR/DDR
+    // register stage to improve timing of the fake differential
+    reg [1:0] R_tmds_p[3:0], R_tmds_n[3:0];
+    generate
+      genvar i;
+      for(i = 0; i < 4; i++)
+      begin : TMDS_pn_registers
+        always @(posedge clk_shift) R_tmds_p[i] <=  tmds[i];
+        always @(posedge clk_shift) R_tmds_n[i] <= ~tmds[i];
+      end
+    endgenerate
+
+    // output SDR/DDR to fake differential
     generate
       genvar i;
       if(C_ddr == 1'b1)
@@ -95,8 +106,8 @@ module top_vgatest
           ODDRX1F
           ddr_p_instance
           (
-            .D0(tmds[i][0]),
-            .D1(tmds[i][1]),
+            .D0(R_tmds_p[i][0]),
+            .D1(R_tmds_p[i][1]),
             .Q(gpdi_dp[i]),
             .SCLK(clk_shift),
             .RST(0)
@@ -104,8 +115,8 @@ module top_vgatest
           ODDRX1F
           ddr_n_instance
           (
-            .D0(~tmds[i][0]),
-            .D1(~tmds[i][1]),
+            .D0(R_tmds_n[i][0]),
+            .D1(R_tmds_n[i][1]),
             .Q(gpdi_dn[i]),
             .SCLK(clk_shift),
             .RST(0)
@@ -114,8 +125,8 @@ module top_vgatest
       else
         for(i = 0; i < 4; i++)
         begin : SDR_output_mode
-          assign gpdi_dp[i] =  tmds[i][0];
-          assign gpdi_dn[i] = ~tmds[i][0];
+          assign gpdi_dp[i] = R_tmds_p[i][0];
+          assign gpdi_dn[i] = R_tmds_n[i][0];
         end
     endgenerate
 
