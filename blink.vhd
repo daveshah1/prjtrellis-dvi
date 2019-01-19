@@ -5,7 +5,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
-entity vhdl_blink is
+entity blink is
   generic
   (
     bits: integer := 23
@@ -17,7 +17,7 @@ entity vhdl_blink is
   );
 end;
 
-architecture Behavioral of vhdl_blink is
+architecture Behavioral of blink is
     signal R_blink: std_logic_vector(bits-1 downto 0);
 begin
     process(clk)
