@@ -47,13 +47,28 @@ endif
 FPGA_CHIP_EQUIVALENT ?= lfe5u-$(FPGA_K)f
 
 # open source synthesis tools
+ECPPLL ?= $(TRELLIS)/libtrellis/ecppll
 ECPPACK ?= $(TRELLIS)/libtrellis/ecppack
 TRELLISDB ?= $(TRELLIS)/database
 LIBTRELLIS ?= $(TRELLIS)/libtrellis
 BIT2SVF ?= $(TRELLIS)/tools/bit_to_svf.py
 BASECFG ?= $(TRELLIS)/misc/basecfgs/empty_$(FPGA_CHIP_EQUIVALENT).config
-# ypsys options, sometimes those can be used: -noccu2 -nomux -nodram
+# yosys options, sometimes those can be used: -noccu2 -nomux -nodram
 YOSYS_OPTIONS ?= 
+
+# clock generator
+CLK0_NAME ?= clk0
+CLK0_FILE_NAME ?= clocks/$(CLK0_NAME).v
+CLK0_OPTIONS ?= --input 25 --output 100 --s1 50 --p1 0 --s2 25 --p2 0 --s3 125 --p3 0
+CLK1_NAME ?= clk1
+CLK1_FILE_NAME ?= clocks/$(CLK1_NAME).v
+CLK1_OPTIONS ?= --input 25 --output 100 --s1 50 --p1 0 --s2 25 --p2 0 --s3 125 --p3 0
+CLK2_NAME ?= clk2
+CLK2_FILE_NAME ?= clocks/$(CLK2_NAME).v
+CLK2_OPTIONS ?= --input 25 --output 100 --s1 50 --p1 0 --s2 25 --p2 0 --s3 125 --p3 0
+CLK3_NAME ?= clk3
+CLK3_FILE_NAME ?= clocks/$(CLK3_NAME).v
+CLK3_OPTIONS ?= --input 25 --output 100 --s1 50 --p1 0 --s2 25 --p2 0 --s3 125 --p3 0
 
 # closed source synthesis tools
 DIAMOND_BASE := /usr/local/diamond
@@ -108,6 +123,22 @@ $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).config: $(PROJECT).json $(BASECFG)
 
 $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).config
 	LANG=C LD_LIBRARY_PATH=$(LIBTRELLIS) $(ECPPACK) $(IDCODE_CHIPID) --db $(TRELLISDB) --input $< --bit $@
+
+$(CLK0_FILE_NAME):
+	LANG=C LD_LIBRARY_PATH=$(LIBTRELLIS) $(ECPPLL) $(CLK0_OPTIONS) --file $@
+	sed -e "s/module pll(/module $(CLK0_NAME)(/g" -i $@
+
+$(CLK1_FILE_NAME):
+	LANG=C LD_LIBRARY_PATH=$(LIBTRELLIS) $(ECPPLL) $(CLK1_OPTIONS) --file $@
+	sed -e "s/module pll(/module $(CLK1_NAME)(/g" -i $@
+
+$(CLK2_FILE_NAME):
+	LANG=C LD_LIBRARY_PATH=$(LIBTRELLIS) $(ECPPLL) $(CLK2_OPTIONS) --file $@
+	sed -e "s/module pll(/module $(CLK2_NAME)(/g" -i $@
+
+$(CLK3_FILE_NAME):
+	LANG=C LD_LIBRARY_PATH=$(LIBTRELLIS) $(ECPPLL) $(CLK3_OPTIONS) --file $@
+	sed -e "s/module pll(/module $(CLK3_NAME)(/g" -i $@
 
 # generate XCF programming file for DDTCMD
 $(BOARD)_$(FPGA_SIZE)f.xcf: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit $(SCRIPTS)/$(BOARD)_sram.xcf $(SCRIPTS)/xcf.xsl $(DTD_FILE)
@@ -174,6 +205,7 @@ JUNK += $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).vme
 JUNK += $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).svf
 JUNK += $(BOARD)_$(FPGA_SIZE)f.xcf
 JUNK += $(BOARD)_$(FPGA_SIZE)f.ocd
+JUNK += $(CLK0_FILE_NAME) $(CLK1_FILE_NAME) $(CLK2_FILE_NAME) $(CLK3_FILE_NAME)
 
 clean:
 	rm -f $(JUNK)

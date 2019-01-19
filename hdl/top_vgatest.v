@@ -13,14 +13,16 @@ module top_vgatest
     assign wifi_gpio0 = btn[0];
 
     // clock generator
-    wire clk_25MHz, clk_125MHz, clk_250MHz;
-    clk_25_125_250_25_83
+    wire clk_250MHz, clk_125MHz, clk_25MHz, clk_100MHz, clk_locked;
+    clk_25_250_125_25_100
     clock_instance
     (
-      .clkin_25MHz(clk_25mhz),
-      .clk_25MHz(clk_25MHz),
-      .clk_125MHz(clk_125MHz),
-      .clk_250MHz(clk_250MHz)
+      .clki(clk_25mhz),
+      .clko(clk_250MHz),
+      .clks1(clk_125MHz),
+      .clks2(clk_25MHz),
+      .clks3(clk_100MHz),
+      .locked(clk_locked)
     );
     
     // shift clock choice SDR/DDR
