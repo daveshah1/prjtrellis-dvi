@@ -4,6 +4,12 @@ BOARD = ulx3s
 # 12 25 45 85
 FPGA_SIZE = 25
 
+FPGA_PACKAGE = 6bg381c
+# config flash: 1:SPI (standard), 4:QSPI (quad)
+FLASH_SPI = 4
+# chip: is25lp032d is25lp128f s25fl164k
+FLASH_CHIP = is25lp128f
+
 # ******* design files *******
 CONSTRAINTS = constraints/ulx3s_v20_segpdi.lpf
 TOP_MODULE = top_vgatest_1024x768
@@ -21,14 +27,10 @@ VERILOG_FILES = \
   $(CLK0_FILE_NAME) \
   hdl/fake_differential.v
 
-# *.vhd those files will be converted to *.v files with vhdl2vl (warning overwriting/deleting)
 VHDL_FILES = \
   hdl/blink.vhd \
   hdl/vga.vhd \
   hdl/vga2dvid.vhd \
   hdl/tmds_encoder.vhd
 
-# synthesis options
-#YOSYS_OPTIONS = -noccu2
-
-include scripts/ulx3s_trellis.mk
+include scripts/ulx3s_diamond.mk

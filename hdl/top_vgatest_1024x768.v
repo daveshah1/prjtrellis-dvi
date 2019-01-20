@@ -13,26 +13,16 @@ module top_vgatest_1024x768
     assign wifi_gpio0 = btn[0];
 
     // clock generator
-    wire clk_325MHz, clk_65MHz, clk_locked;
-    clk_25_325_65
+    wire clk_shift, clk_pixel, clk_locked;
+    clk_25_shift_pixel
     clock_instance
     (
       .clki(clk_25mhz),
-      .clko(clk_325MHz),
-      .clks1(clk_65MHz),
+      .clko(clk_shift),
+      .clks1(clk_pixel),
       .locked(clk_locked)
     );
     
-    // shift clock choice SDR/DDR
-    wire clk_pixel, clk_shift;
-    assign clk_pixel = clk_65MHz;
-    generate
-      if(C_ddr == 1'b1)
-        assign clk_shift = clk_325MHz;
-      else
-        assign clk_shift = clk_325MHz; // dummy, it can't do SDR
-    endgenerate
-
     // LED blinky
     localparam counter_width = 28;
     wire [7:0] countblink;
