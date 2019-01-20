@@ -7,10 +7,10 @@ module textcon(
 	output hs_out, vs_out, blk_out
 );
 
-wire [10:0] rom_addr = {x[9:3], y[2:0]};
+wire [11:0] rom_addr = {x[10:3], y[3:0]};
 
-reg [7:0] font_rom[0:1023];
-initial $readmemh("hdl/font_8x8.dat", font_rom);
+reg [7:0] font_rom[0:4095];
+initial $readmemh("hdl/font_8x16.dat", font_rom);
 
 reg [7:0] rom_data;
 
@@ -23,7 +23,7 @@ wire pixel = rom_data[3'd7 - x_next[2:0]];
 
 always @(posedge clk) begin
 	rom_data <= font_rom[rom_addr];
-	case (y[5:3])
+	case (y[6:4])
 		3'b000: begin font_r = 8'hFF; font_g = 8'hFF; font_b = 8'hFF; end
 		3'b001: begin font_r = 8'hFF; font_g = 8'h00; font_b = 8'h00; end
 		3'b010: begin font_r = 8'h00; font_g = 8'hFF; font_b = 8'h00; end
