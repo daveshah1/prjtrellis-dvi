@@ -43,14 +43,17 @@ module top_vgatest_1920x1080
     wire vga_hsync, vga_vsync, vga_blank;
     vga
     #(
+      // https://github.com/Xilinx/embeddedsw/blob/master/XilinxProcessorIPLib/drivers/video_common/src/xvidc_timings_table.c
       .C_resolution_x(1920),
-      .C_hsync_front_porch(528),
+      .C_hsync_front_porch(88),
       .C_hsync_pulse(44),
       .C_hsync_back_porch(148),
       .C_resolution_y(1080),
       .C_vsync_front_porch(4),
       .C_vsync_pulse(5),
-      .C_vsync_back_porch(36)
+      .C_vsync_back_porch(36),
+      .C_bits_x(12),
+      .C_bits_y(11)
     )
     vga_instance
     (

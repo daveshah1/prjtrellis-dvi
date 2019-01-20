@@ -50,7 +50,9 @@ module top_vgatest_1024x768
       .C_resolution_y(768),
       .C_vsync_front_porch(10),
       .C_vsync_pulse(2),
-      .C_vsync_back_porch(31)
+      .C_vsync_back_porch(31),
+      .C_bits_x(11),
+      .C_bits_y(11)
     )
     vga_instance
     (

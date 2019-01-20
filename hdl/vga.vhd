@@ -31,6 +31,8 @@ entity vga is
     C_vsync_front_porch: integer := 10;
     C_vsync_pulse: integer := 2;
     C_vsync_back_porch: integer := 31; -- 33
+    C_bits_x: integer := 10; -- should fit C_resolution_x + C_hsync_front_porch + C_hsync_pulse + C_hsync_back_porch
+    C_bits_y: integer := 10; -- should fit C_resolution_y + C_vsync_front_porch + C_vsync_pulse + C_vsync_back_porch
     C_dbl_x: integer := 0;  -- 0-normal X, 1-double X
     C_dbl_y: integer := 0   -- 0-normal X, 1-double X
   );
@@ -64,8 +66,8 @@ architecture syn of vga is
     -- frame_y = 480 + 10 + 2 + 33 = 525;
     -- refresh_rate = pixel_clock/(frame_x*frame_y) = 25MHz / (800*525) = 59.52Hz
   constant C_synclen: integer := 3; -- >=2, bit length of the clock synchronizer shift register
-  constant C_bits_x: integer := 11; -- ceil_log2(C_frame_x-1)
-  constant C_bits_y: integer := 11; -- ceil_log2(C_frame_y-1)
+  --constant C_bits_x: integer := 13; -- ceil_log2(C_frame_x-1)
+  --constant C_bits_y: integer := 11; -- ceil_log2(C_frame_y-1)
   signal CounterX: std_logic_vector(C_bits_x-1 downto 0); -- (9 downto 0) is good for up to 1023 frame timing width (resolution 640x480)
   signal CounterY: std_logic_vector(C_bits_y-1 downto 0); -- (9 downto 0) is good for up to 1023 frame timing width (resolution 640x480)
   signal hSync, vSync, vBlank, DrawArea, fetcharea: std_logic;
