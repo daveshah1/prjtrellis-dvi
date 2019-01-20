@@ -65,7 +65,7 @@ architecture syn of vga is
     -- refresh_rate = pixel_clock/(frame_x*frame_y) = 25MHz / (800*525) = 59.52Hz
   constant C_synclen: integer := 3; -- >=2, bit length of the clock synchronizer shift register
   constant C_bits_x: integer := 11; -- ceil_log2(C_frame_x-1)
-  constant C_bits_y: integer := 10; -- ceil_log2(C_frame_y-1)
+  constant C_bits_y: integer := 11; -- ceil_log2(C_frame_y-1)
   signal CounterX: std_logic_vector(C_bits_x-1 downto 0); -- (9 downto 0) is good for up to 1023 frame timing width (resolution 640x480)
   signal CounterY: std_logic_vector(C_bits_y-1 downto 0); -- (9 downto 0) is good for up to 1023 frame timing width (resolution 640x480)
   signal hSync, vSync, vBlank, DrawArea, fetcharea: std_logic;
