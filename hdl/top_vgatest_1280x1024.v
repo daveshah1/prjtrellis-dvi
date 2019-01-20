@@ -1,4 +1,4 @@
-module top_vgatest_1024x1024
+module top_vgatest_1280x1024
 (
   input clk_25mhz,
   input [6:0] btn,
@@ -43,14 +43,14 @@ module top_vgatest_1024x1024
     wire vga_hsync, vga_vsync, vga_blank;
     vga
     #(
-      .C_resolution_x(1024),
-      .C_hsync_front_porch(16),
-      .C_hsync_pulse(96),
-      .C_hsync_back_porch(44),
+      .C_resolution_x(1280),
+      .C_hsync_front_porch(30),
+      .C_hsync_pulse(64),
+      .C_hsync_back_porch(60),
       .C_resolution_y(1024),
-      .C_vsync_front_porch(10),
-      .C_vsync_pulse(2),
-      .C_vsync_back_porch(31),
+      .C_vsync_front_porch(3),
+      .C_vsync_pulse(5),
+      .C_vsync_back_porch(10),
       .C_bits_x(11),
       .C_bits_y(11)
     )
