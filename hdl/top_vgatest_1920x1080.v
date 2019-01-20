@@ -44,7 +44,7 @@ module top_vgatest_1920x1080
     vga
     #(
       .C_resolution_x(1920),
-      .C_hsync_front_porch(528),
+      .C_hsync_front_porch(88),
       .C_hsync_pulse(44),
       .C_hsync_back_porch(148),
       .C_resolution_y(1080),
@@ -77,8 +77,8 @@ module top_vgatest_1920x1080
       .in_red(vga_r),
       .in_green(vga_g),
       .in_blue(vga_b),
-      .in_hsync(~vga_hsync),
-      .in_vsync(~vga_vsync),
+      .in_hsync(vga_hsync),
+      .in_vsync(vga_vsync),
       .in_blank(vga_blank),
       .out_clock(tmds[3]),
       .out_red(tmds[2]),

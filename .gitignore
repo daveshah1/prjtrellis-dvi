@@ -1,0 +1,7 @@
+*.bit
+*.log
+*.json
+*.config
+vga_tb
+*.vcd
+

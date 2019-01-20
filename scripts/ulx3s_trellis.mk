@@ -15,13 +15,13 @@ VHDL_FILES ?=
 
 # ******* tools installation paths *******
 # https://github.com/ldoolitt/vhd2vl
-VHDL2VL ?= /mt/scratch/tmp/openfpga/vhd2vl/src/vhd2vl
+VHDL2VL ?= /home/david/vhd2vl/src/vhd2vl
 # https://github.com/YosysHQ/yosys
-YOSYS ?= /mt/scratch/tmp/openfpga/yosys/yosys
+YOSYS ?= /home/david/yosys/yosys
 # https://github.com/YosysHQ/nextpnr
-NEXTPNR-ECP5 ?= /mt/scratch/tmp/openfpga/nextpnr/nextpnr-ecp5
+NEXTPNR-ECP5 ?= /home/david/nextpnr-master/nextpnr-ecp5
 # https://github.com/SymbiFlow/prjtrellis
-TRELLIS ?= /mt/scratch/tmp/openfpga/prjtrellis
+TRELLIS ?= /home/david/prjtrellis
 
 ifeq ($(FPGA_CHIP), lfe5u-12f)
   CHIP_ID=0x21111043
@@ -119,7 +119,7 @@ $(PROJECT).json: $(VERILOG_FILES) $(VHDL_TO_VERILOG_FILES)
 	$(VERILOG_FILES) $(VHDL_TO_VERILOG_FILES)
 
 $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).config: $(PROJECT).json $(BASECFG)
-	$(NEXTPNR-ECP5) --$(FPGA_K)k --json $(PROJECT).json --lpf $(CONSTRAINTS) --basecfg $(BASECFG) --textcfg $@
+	$(NEXTPNR-ECP5) --$(FPGA_K)k --json $(PROJECT).json --lpf $(CONSTRAINTS) --basecfg $(BASECFG) --textcfg $@ 
 
 $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).bit: $(BOARD)_$(FPGA_SIZE)f_$(PROJECT).config
 	LANG=C LD_LIBRARY_PATH=$(LIBTRELLIS) $(ECPPACK) $(IDCODE_CHIPID) --db $(TRELLISDB) --input $< --bit $@

@@ -64,7 +64,7 @@ architecture syn of vga is
     -- frame_y = 480 + 10 + 2 + 33 = 525;
     -- refresh_rate = pixel_clock/(frame_x*frame_y) = 25MHz / (800*525) = 59.52Hz
   constant C_synclen: integer := 3; -- >=2, bit length of the clock synchronizer shift register
-  constant C_bits_x: integer := 11; -- ceil_log2(C_frame_x-1)
+  constant C_bits_x: integer := 12; -- ceil_log2(C_frame_x-1)
   constant C_bits_y: integer := 11; -- ceil_log2(C_frame_y-1)
   signal CounterX: std_logic_vector(C_bits_x-1 downto 0); -- (9 downto 0) is good for up to 1023 frame timing width (resolution 640x480)
   signal CounterY: std_logic_vector(C_bits_y-1 downto 0); -- (9 downto 0) is good for up to 1023 frame timing width (resolution 640x480)
@@ -103,25 +103,29 @@ begin
   --beam_x <= CounterX;
   --beam_y <= CounterY;
 
-  vga_blank <= not DrawArea;
+  vga_blank <= not fetcharea;
   -- Sync and VBlank generation
   process(clk_pixel)
   begin
     if rising_edge(clk_pixel) then
       if CounterX = C_resolution_x + C_hsync_front_porch then
         hSync <= '1';
+        if CounterY = C_resolution_y + C_vsync_front_porch - 1 then
+          vSync <= '1';
+        end if;
+        if CounterY = C_resolution_y + C_vsync_front_porch + C_vsync_pulse - 1 then
+          vSync <= '0';
+        end if;
       end if;
       if CounterX = C_resolution_x + C_hsync_front_porch + C_hsync_pulse then
         hSync <= '0';
       end if;
-      if CounterY = C_resolution_y then
+      if CounterY = C_resolution_y - 1 then
         vBlank <= '1';
       end if;
-      if CounterY = C_resolution_y + C_vsync_front_porch then
-        vSync <= '1';
-      end if;
-      if CounterY = C_resolution_y + C_vsync_front_porch + C_vsync_pulse then
-        vSync <= '0';
+
+
+      if CounterY = C_frame_y - 1 then
         vBlank <= '0';
       end if;
     end if;
