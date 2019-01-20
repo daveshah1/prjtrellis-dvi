@@ -42,6 +42,8 @@ input wire clk_pixel,
 input wire test_picture,
 output wire fetch_next,
 output wire line_repeat,
+output wire [11:0] beam_x,
+output wire [10:0] beam_y,
 input wire [7:0] red_byte,
 input wire [7:0] green_byte,
 input wire [7:0] blue_byte,
@@ -69,8 +71,6 @@ parameter [31:0] C_dbl_y=0;
 // show test picture
 // request FIFO to fetch next pixel data
 // request FIFO to repeat previous scan line content (used in y-doublescan)
-//beam_x: out std_logic_vector(9 downto 0);
-//beam_y: out std_logic_vector(9 downto 0);
 // pixel data from FIFO
 // 8-bit VGA video signal out
 // VGA sync
@@ -124,8 +124,8 @@ wire [5:0] Z;
     end
   end
 
-  //beam_x <= CounterX;
-  //beam_y <= CounterY;
+  assign beam_x = CounterX;
+  assign beam_y = CounterY;
   assign vga_blank =  ~fetcharea;
   // Sync and VBlank generation
   always @(posedge clk_pixel) begin

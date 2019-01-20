@@ -19,8 +19,8 @@ CLK0_OPTIONS = \
 VERILOG_FILES = \
   $(TOP_MODULE_FILE) \
   $(CLK0_FILE_NAME) \
-  hdl/fake_differential.v
-
+  hdl/fake_differential.v \
+  hdl/textcon.v
 # *.vhd those files will be converted to *.v files with vhdl2vl (warning overwriting/deleting)
 VHDL_FILES = \
   hdl/blink.vhd \

@@ -40,7 +40,10 @@ module top_vgatest_1920x1080
 
     // VGA signal generator
     wire [7:0] vga_r, vga_g, vga_b;
+    wire pre_hsync, pre_vsync, pre_blank;
     wire vga_hsync, vga_vsync, vga_blank;
+    wire [11:0] x;
+    wire [10:0] y;
     vga
     #(
       .C_resolution_x(1920),
@@ -56,14 +59,22 @@ module top_vgatest_1920x1080
     (
       .clk_pixel(clk_pixel),
       .test_picture(1'b1), // enable test picture generation
-      .vga_r(vga_r),
-      .vga_g(vga_g),
-      .vga_b(vga_b),
-      .vga_hsync(vga_hsync),
-      .vga_vsync(vga_vsync),
-      .vga_blank(vga_blank)
+      //.vga_r(vga_r),
+      //.vga_g(vga_g),
+      //.vga_b(vga_b),
+      .beam_x(x),
+      .beam_y(y),
+      .vga_hsync(pre_hsync),
+      .vga_vsync(pre_vsync),
+      .vga_blank(pre_blank)
     );
-
+    textcon con_i (
+      .clk(clk_pixel),
+      .x(x), .y(y),
+      .r(vga_r), .g(vga_g), .b(vga_b),
+      .hs_in(pre_hsync), .vs_in(pre_vsync), .blk_in(pre_blank),
+      .hs_out(vga_hsync), .vs_out(vga_vsync), .blk_out(vga_blank)
+    );
     // VGA to digital video converter
     wire [1:0] tmds[3:0];
     vga2dvid
