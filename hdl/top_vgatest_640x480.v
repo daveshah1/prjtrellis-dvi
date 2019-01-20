@@ -1,4 +1,4 @@
-module top_vgatest
+module top_vgatest_640x480
 (
   input clk_25mhz,
   input [6:0] btn,
@@ -13,15 +13,14 @@ module top_vgatest
     assign wifi_gpio0 = btn[0];
 
     // clock generator
-    wire clk_250MHz, clk_125MHz, clk_25MHz, clk_100MHz, clk_locked;
-    clk_25_250_125_25_100
+    wire clk_250MHz, clk_125MHz, clk_25MHz, clk_locked;
+    clk_25_250_125_25
     clock_instance
     (
       .clki(clk_25mhz),
       .clko(clk_250MHz),
       .clks1(clk_125MHz),
       .clks2(clk_25MHz),
-      .clks3(clk_100MHz),
       .locked(clk_locked)
     );
     

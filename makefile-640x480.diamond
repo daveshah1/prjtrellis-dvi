@@ -12,10 +12,10 @@ FLASH_CHIP = is25lp128f
 
 # ******* design files *******
 CONSTRAINTS = constraints/ulx3s_v20_segpdi.lpf
-TOP_MODULE = top_vgatest
+TOP_MODULE = top_vgatest_640x480
 TOP_MODULE_FILE = hdl/$(TOP_MODULE).v
 
-CLK0_NAME = clk_25_250_125_25_100
+CLK0_NAME = clk_25_250_125_25
 CLK0_FILE_NAME = clocks/$(CLK0_NAME).v
 CLK0_OPTIONS = \
   --input=25 \
@@ -23,9 +23,7 @@ CLK0_OPTIONS = \
   --s1=125 \
   --p1=0 \
   --s2=25 \
-  --p2=0 \
-  --s3=100 \
-  --p3=0
+  --p2=0
 
 VERILOG_FILES = \
   $(TOP_MODULE_FILE) \
